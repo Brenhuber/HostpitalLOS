@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd 
 import plotly.express as px
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_absolute_error
 from xgboost import XGBRegressor
 
 # ------------ Page Styling ------------
@@ -83,11 +84,17 @@ def predict(customer_dict, df):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     model = XGBRegressor()
     model.fit(X_train, y_train)
+    prediction = model.predict(single)[0]
     accuracy = model.score(X_test, y_test)
 
+    # Metrics
+    y_pred = model.predict(X_test)
+    mae = mean_absolute_error(y_test, y_pred)
+    baseline_mae = mean_absolute_error(y_test, [y_train.mean()] * len(y_test))
+    mae_reduction = ((baseline_mae - mae) / baseline_mae) * 100
+
     fi = pd.Series(model.feature_importances_, index=X_train.columns)
-    prediction = model.predict(single)[0]
-    return prediction, accuracy, fi
+    return prediction, accuracy, fi, mae, mae_reduction
 
 # ------------ Sidebar UI ------------
 
@@ -132,15 +139,15 @@ customer[gender_choice] = 1
 
 # ------------ Main Page ------------
 
-st.title("🏥 Hospital Length of Stay Predictor")
-
 if st.sidebar.button("⌚ Predict LOS"):
-    col1, col2 = st.columns(2)
-    prediction, accuracy, fi = predict(customer, df)
+    col1, col2, col3 = st.columns(3)
+    prediction, accuracy, fi, mae, mae_reduction = predict(customer, df)
     with col1:
         st.metric("⏱️ Predicted Length of Stay", f"{round(prediction)} days")
     with col2:
         st.metric("🎯 Model Accuracy", f"{accuracy * 100:.2f}%")
+    with col3:
+        st.metric("📉 MAE vs Baseline", f"{mae:.2f} (↓ {mae_reduction:.1f}%)")
 
     st.subheader("📊 Feature Importance")
     if fi is not None and not fi.empty:
@@ -156,5 +163,32 @@ if st.sidebar.button("⌚ Predict LOS"):
             yaxis=dict(tickfont=dict(size=12))    
         )
         st.plotly_chart(fig, use_container_width=True)
+else:
+    st.markdown("""
+        <div style="
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+            background: #ffffff22;
+            border: 2px solid #52796f;
+            border-radius: 16px;
+            margin: 2rem 0;
+        ">
+            <h1 style="
+                color: #ffffff;
+                font-size: 2rem;
+                font-weight: 600;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+                text-align: center;
+                line-height: 1.3;
+            ">
+                🔍 Complete the form in the sidebar,<br>
+                and click <strong>Predict</strong><br>
+                to view LOS insights.
+            </h1>
+        </div>
+    """, unsafe_allow_html=True)
+
 
 
