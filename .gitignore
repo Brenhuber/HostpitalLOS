@@ -1,0 +1,51 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+venv/
+.env/
+.venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VS Code settings
+.vscode/
+
+# macOS
+.DS_Store
+
+# PyCharm
+.idea/
+
+# Streamlit cache
+.streamlit/
+
+# Logs
+*.log
+
+# Data files
+*.csv
+*.tsv
+*.xlsx
+
+# Python egg files
+*.egg-info/
+*.egg
+
+# Environment variables
+.env
+
+# Compiled objects
+*.so
+*.dll
+*.dylib
+
+# Test and coverage outputs
+.coverage
+htmlcov/
+.tox/
+.nox/
+.cache/
