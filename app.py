@@ -82,7 +82,8 @@ def predict(customer_dict, df):
     X = X.reindex(columns=X.columns, fill_value=0)
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-    model = XGBRegressor()
+    model = XGBRegressor(colsample_bytree=0.8,learning_rate=0.1,max_depth=7,
+                         n_estimators=300,subsample=0.8,random_state=42)
     model.fit(X_train, y_train)
     prediction = model.predict(single)[0]
     accuracy = model.score(X_test, y_test)
